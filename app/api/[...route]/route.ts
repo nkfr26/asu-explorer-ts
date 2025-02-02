@@ -5,10 +5,12 @@ export const runtime = "edge";
 
 const app = new Hono().basePath("/api");
 
-app.get("/hello", (c) => {
+const route = app.get("/hello", (c) => {
   return c.json({
     message: "Hello from Hono!",
   });
 });
+
+export type AppType = typeof route;
 
 export const GET = handle(app);

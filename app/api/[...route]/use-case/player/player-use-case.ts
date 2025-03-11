@@ -28,4 +28,10 @@ export const playerUseCase = (destinationRepository: DestinationRepository) => (
     }
     return updateHasArrivedAtDestination(saveData, false);
   },
+  next: (saveData: SaveData): SaveData => {
+    if (!saveData.hasArrivedAtDestination) {
+      return saveData;
+    }
+    return advance(saveData);
+  },
 });

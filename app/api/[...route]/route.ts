@@ -1,6 +1,6 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import { getCookie, setCookie } from "hono/cookie";
+import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { sign, verify } from "hono/jwt";
 import { handle } from "hono/vercel";
 import { coordinatesSchema } from "./domain/coordinates";
@@ -48,9 +48,22 @@ const route = app
     return c.json({
       hasArrivedAtDestination: returnedSaveData.hasArrivedAtDestination,
     });
+  })
+  .post("/next", async (c) => {
+    const saveData = c.get("saveData");
+    const returnedSaveData = di.playerUseCase.next(saveData);
+    setCookie(c, COOKIE_KEY, await sign(returnedSaveData, JWT_SECRET));
+    return c.json({
+      hasCleared: returnedSaveData.hasCleared,
+    });
+  })
+  .delete("/reset", (c) => {
+    deleteCookie(c, COOKIE_KEY);
+    return c.body(null, 204);
   });
 
 export type AppType = typeof route;
 
 export const GET = handle(app);
 export const POST = handle(app);
+export const DELETE = handle(app);
